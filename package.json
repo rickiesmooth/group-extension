@@ -1,40 +1,52 @@
 {
-  "name": "example-extension",
-  "display_name": "Example Extension",
+  "name": "group-extension",
+  "display_name": "Group Extension",
   "version": "0.0.3",
   "description": "Example extension add-on for Mozilla WebThings Gateway",
   "author": "Mozilla IoT",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build": "tsc -p .",
+    "watch": "tsc -w"
   },
   "keywords": [
     "mozilla",
     "iot",
     "extension",
-    "example"
+    "group"
   ],
-  "homepage": "https://github.com/mozilla-iot/example-extension",
+  "homepage": "https://github.com/rickiesmooth/group-extension",
   "license": "MPL-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla-iot/example-extension.git"
+    "url": "https://github.com/rickiesmooth/group-extension.git"
   },
   "bugs": {
-    "url": "https://github.com/mozilla-iot/example-extension/issues"
+    "url": "https://github.com/rickiesmooth/group-extension/issues"
+  },
+  "dependencies": {
+    "websocket": "^1.0.30",
+    "webthings-client": "1.1.0"
   },
   "devDependencies": {
+    "@types/node": "^12.12.12",
+    "@types/uuid": "^3.4.6",
+    "@types/websocket": "^1.0.0",
     "babel-eslint": "^10.0.3",
-    "eslint": "^6.5.1"
+    "eslint": "^6.5.1",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "typescript": "^3.7.2"
   },
   "files": [
     "LICENSE",
     "README.md",
     "SHA256SUMS",
     "css/extension.css",
-    "example-extension.js",
     "images/menu-icon.svg",
-    "index.js",
+    "lib",
     "js/extension.js",
     "manifest.json",
     "views/content.html"

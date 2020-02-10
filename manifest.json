@@ -2,12 +2,8 @@
   "author": "Mozilla IoT",
   "content_scripts": [
     {
-      "css": [
-        "css/extension.css"
-      ],
-      "js": [
-        "js/extension.js"
-      ]
+      "css": ["css/extension.css"],
+      "js": ["js/extension.js"]
     }
   ],
   "description": "Example extension add-on for Mozilla WebThings Gateway",
@@ -19,12 +15,24 @@
       "strict_min_version": "0.10.0"
     }
   },
-  "homepage_url": "https://github.com/mozilla-iot/example-extension",
-  "id": "example-extension",
+  "options": {
+    "schema": {
+      "type": "object",
+      "required": ["accessToken"],
+      "properties": {
+        "accessToken": {
+          "type": "string",
+          "title": "Access token for the gateway"
+        }
+      }
+    }
+  },
+  "homepage_url": "https://github.com/rickiesmooth/group-extension",
+  "id": "group-extension",
   "license": "MPL-2.0",
   "manifest_version": 1,
-  "name": "Example Extension",
-  "short_name": "Example",
+  "name": "Group Extension",
+  "short_name": "Groups",
   "version": "0.0.3",
   "web_accessible_resources": [
     "css/*.css",

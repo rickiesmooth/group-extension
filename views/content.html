@@ -1,22 +1,45 @@
-<div id="extension-example-extension-content">
-  <div id="extension-example-extension-request">
-    <h2>Echo Request</h2>
-    <div id="extension-example-extension-form-content">
-      <label for="key">Key: </label>
-      <input type="text" name="key" id="extension-example-extension-form-key" required>
-      <br>
-      <label for="value">Value: </label>
-      <input type="text" name="value" id="extension-example-extension-form-value" required>
-      <br>
-      <button type="button" id="extension-example-extension-form-submit">Send</button>
+<div id="group-extension-content">
+  <div>
+    <button type="submit" id="group-extension-delete">
+      Delete all
+    </button>
+
+    <div id="group-extension-response">
+      <pre id="group-extension-response-data"></pre>
     </div>
+
+    <ul id="group-extension-groups"></ul>
+
+    <button
+      id="add-group-button"
+      class="icon-button"
+      data-l10n-id="add-things"
+      aria-label="Add New Things"
+    ></button>
   </div>
-
-  <br>
-  <br>
-
-  <div id="extension-example-extension-response">
-    <h2>Echo Response</h2>
-    <pre id="extension-example-extension-response-data"></pre>
+  <div id="add-group-screen" class="dialog hidden">
+    <button
+      id="add-group-back-button"
+      class="back-button icon-button"
+      data-l10n-id="back-button"
+      aria-label="Back"
+    ></button>
+    <div id="group-extension-request">
+      <h2>Create group</h2>
+      <form id="group-extension-form-content">
+        <label for="key">Key: </label>
+        <input
+          type="text"
+          name="key"
+          id="group-extension-form-key"
+          required
+          autocomplete="off"
+        />
+        <ul id="group-extension-form-content-devices"></ul>
+        <button type="submit" id="group-extension-form-submit">
+          Send
+        </button>
+      </form>
+    </div>
   </div>
 </div>
