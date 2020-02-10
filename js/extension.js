@@ -1,7 +1,7 @@
 (function() {
   class ExampleExtension extends window.Extension {
     constructor() {
-      super("example-extension");
+      super("group-extension");
       this.addMenuEntry("Groups");
       this.content = "";
       this.things = [];
