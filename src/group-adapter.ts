@@ -15,7 +15,7 @@ const DEFAULT_TYPE = virtualSwitches[0]["type"];
 export type Group = {
   title: string;
   id: string;
-  devices: [string];
+  devices: string[];
   type?: string;
 };
 
@@ -32,6 +32,9 @@ type Message = {
   messageType: MessageTypes;
   data: Record<string, unknown>;
 };
+
+const externalToInternalId = (href: string) =>
+  href.split("/things/").pop() || "";
 
 export class GroupAdapter extends Adapter<GDevice> {
   private connection: Connection | null = null;
@@ -58,13 +61,17 @@ export class GroupAdapter extends Adapter<GDevice> {
       this.db.open().then(() => this.db.loadConfig()),
       WTClient.local(this.accessToken).then(client => client.getDevices())
     ]).then(([config, discoveredFollowerDevices]) => {
-      this.config = config;
+      this.config = {
+        ...config,
+        groups: config.groups || {}
+      };
       for (const key in discoveredFollowerDevices) {
         const discovered = discoveredFollowerDevices[key] as Device & IDevice;
-        this.availableFollowerDevices[discovered.id] = discovered;
+        const id = externalToInternalId(discovered.id);
+        this.availableFollowerDevices[id] = discovered;
       }
-      for (const key in config.groups) {
-        const group = new GroupDevice(this, config.groups[key]);
+      for (const groupKey in config.groups) {
+        const group = new GroupDevice(this, config.groups[groupKey]);
         this.handleDeviceAdded(group);
       }
     });
@@ -74,6 +81,7 @@ export class GroupAdapter extends Adapter<GDevice> {
     const message: Message = JSON.parse(m.utf8Data!);
     const groupDevice = this.devices[message.id];
     if (!groupDevice) return;
+
     switch (message.messageType) {
       case MessageTypes.PROPERTY_STATUS:
         // in case there are multiple properties updated
@@ -95,17 +103,16 @@ export class GroupAdapter extends Adapter<GDevice> {
     groupProperty: GDevice["groupProperties"][keyof GDevice["groupProperties"]],
     payload: Message["data"]
   ) => {
-    console.log("PAYLOAD:>>", groupProperty);
     groupProperty
       // flatten groupProps
       .reduce(
         (all, { followerDevices }) => [...all, ...followerDevices],
         [] as string[]
       )
-      .forEach(href => {
+      .forEach(id => {
         const data = {
           messageType: "setProperty",
-          id: href.split("/things/").pop(), // ecternalID to internal
+          id,
           data: payload
         };
 
@@ -119,14 +126,15 @@ export class GroupAdapter extends Adapter<GDevice> {
       if (id in this.devices) {
         reject(`Device: ${id} already exists.`);
       } else {
-        const device = new GroupDevice(this, {
+        const groupConfig = {
           id,
           title,
           type,
-          devices
-        });
-
-        this.config.groups[id] = { id, title, type, devices };
+          devices: devices.map(externalToInternalId)
+        };
+        console.log("ADDING NEW GROUP", groupConfig);
+        const device = new GroupDevice(this, groupConfig);
+        this.config.groups[id] = groupConfig;
         this.db.saveConfig(this.config);
         this.handleDeviceAdded(device);
         resolve(device);
@@ -183,10 +191,19 @@ export class GroupDevice extends Device implements GDevice {
   }
 
   initializeDevice = (deviceId: string) => {
+    console.log("INITIALIZE: deviceId", deviceId);
+    console.log(
+      "INITIALIZE: followerDevice",
+      this.adapter.availableFollowerDevices[deviceId]
+    );
+    console.log(
+      "AVAILABLE FOLLOWERDEVICES",
+      this.adapter.availableFollowerDevices
+    );
     const device = this.adapter.availableFollowerDevices[deviceId];
 
     if (!device) throw Error("Device not found!");
-
+    const id = externalToInternalId(device.id);
     for (const key in device.properties) {
       const targetProperty = device.properties[key];
       const { minimum = 0, maximum = 1, type } = targetProperty;
@@ -211,12 +228,12 @@ export class GroupDevice extends Device implements GDevice {
       const index = currentGroupProperty.findIndex(props => props.uid === uid);
 
       index > -1
-        ? currentGroupProperty[index].followerDevices.push(device.href)
+        ? currentGroupProperty[index].followerDevices.push(id)
         : currentGroupProperty.push({
-            ...targetProperty,
-            followerDevices: [device.id],
-            uid
-          } as any);
+          ...targetProperty,
+          followerDevices: [id],
+          uid
+        } as any);
     }
   };
 
